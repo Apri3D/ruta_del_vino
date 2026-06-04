@@ -1,10 +1,5 @@
 import React, { useState } from 'react';
-import { createClient } from '@supabase/supabase-js';
-
-// Inicializamos el cliente de Supabase (Reemplazá con tus credenciales de Supabase)
-   const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
-   const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
-   const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+import { supabase } from '../lib/supabase';
 
 export default function FormularioCarga() {
   const [formData, setFormData] = useState({
