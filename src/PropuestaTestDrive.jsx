@@ -25,7 +25,7 @@ export default function PropuestaTestDrive() {
             <div className="absolute inset-0 bg-black/40"></div>
             <span className="relative z-10 bg-[#4A0E17] text-white text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-widest w-fit mb-1">
               Híbrido Enchufable
-            </p>
+            </span>
             <h3 className="relative z-10 text-white font-bold text-lg leading-tight">Changan C55 Plus iDD</h3>
           </div>
           
