@@ -1,5 +1,6 @@
 import React from 'react';
 import { useLocation } from 'react-router-dom'
+import ChargingStatus from '../components/ChargingStatus'
 
 export default function VipAntelo() {
   const { state } = useLocation()
@@ -9,10 +10,13 @@ export default function VipAntelo() {
     <div className="flex justify-center items-center min-h-screen bg-[#111111] p-4">
       <div className="w-full max-w-md bg-[#222222] rounded-2xl p-8 shadow-2xl border border-[#333333] text-center">
         
-        {/* Indicador de Carga Activa */}
         <div className="inline-flex items-center gap-2 bg-[#556B2F]/20 text-[#7ca43b] px-4 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wider mb-6 border border-[#556B2F]/30 animate-pulse">
           <span className="w-2 h-2 rounded-full bg-[#7ca43b]"></span>
           Carga Solar Activa (Bonificada)
+        </div>
+
+        <div className="relative flex justify-center mb-6">
+          <ChargingStatus />
         </div>
 
         {/* Tarjeta de Membresía VIP */}

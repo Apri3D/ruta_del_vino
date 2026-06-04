@@ -11,6 +11,7 @@ export default function Admin() {
   const [users, setUsers] = useState([])
   const [tab, setTab] = useState('leads')
   const [showForm, setShowForm] = useState(false)
+  const [editingId, setEditingId] = useState(null)
   const [form, setForm] = useState({ title: '', description: '', discount_pct: '', code: '', tier_required: 'regular', valid_until: '' })
 
   useEffect(() => {
@@ -31,19 +32,41 @@ export default function Admin() {
     })
   }, [profile])
 
-  async function createPromo(e) {
+  function resetForm() {
+    setForm({ title: '', description: '', discount_pct: '', code: '', tier_required: 'regular', valid_until: '' })
+    setShowForm(false)
+    setEditingId(null)
+  }
+
+  function editPromo(promo) {
+    setForm({
+      title: promo.title,
+      description: promo.description || '',
+      discount_pct: promo.discount_pct?.toString() || '',
+      code: promo.code || '',
+      tier_required: promo.tier_required,
+      valid_until: promo.valid_until?.split('T')[0] || ''
+    })
+    setEditingId(promo.id)
+    setShowForm(true)
+  }
+
+  async function savePromo(e) {
     e.preventDefault()
-    await supabase.from('promos').insert({
+    const payload = {
       title: form.title,
       description: form.description || null,
       discount_pct: form.discount_pct ? parseInt(form.discount_pct) : null,
       code: form.code || null,
       tier_required: form.tier_required,
       valid_until: form.valid_until || null,
-      is_active: true
-    })
-    setForm({ title: '', description: '', discount_pct: '', code: '', tier_required: 'regular', valid_until: '' })
-    setShowForm(false)
+    }
+    if (editingId) {
+      await supabase.from('promos').update(payload).eq('id', editingId)
+    } else {
+      await supabase.from('promos').insert({ ...payload, is_active: true })
+    }
+    resetForm()
     supabase.from('promos').select('*').order('created_at', { ascending: false }).then(({ data }) => {
       if (data) setPromos(data)
     })
@@ -125,8 +148,8 @@ export default function Admin() {
               {showForm ? 'Cancelar' : '+ Nueva Promo'}
             </button>
 
-            {showForm && (
-              <form onSubmit={createPromo} className="bg-[#222] rounded-xl p-4 border border-[#333] space-y-3 mb-6">
+              {showForm && (
+              <form onSubmit={savePromo} className="bg-[#222] rounded-xl p-4 border border-[#333] space-y-3 mb-6">
                 <input placeholder="Título" required value={form.title}
                   onChange={e => setForm({ ...form, title: e.target.value })}
                   className="w-full bg-[#2d2d2d] border border-[#3d3d3d] rounded-lg px-4 py-2 text-white placeholder-gray-500 text-sm" />
@@ -153,24 +176,32 @@ export default function Admin() {
                   className="w-full bg-[#2d2d2d] border border-[#3d3d3d] rounded-lg px-4 py-2 text-white text-sm" />
                 <button type="submit"
                   className="bg-[#556B2F] hover:bg-[#657b3a] text-white px-4 py-2 rounded-lg text-sm font-semibold">
-                  Crear Promo
+                  {editingId ? 'Guardar Cambios' : 'Crear Promo'}
                 </button>
               </form>
             )}
 
             <div className="space-y-3">
               {promos.map(promo => (
-                <div key={promo.id} className="bg-[#222] rounded-xl p-4 border border-[#333] flex justify-between items-center">
-                  <div>
-                    <h3 className="text-white font-semibold">{promo.title}</h3>
-                    <p className="text-gray-400 text-xs mt-1">
-                      {promo.tier_required} {promo.discount_pct && `· ${promo.discount_pct}% OFF`} {promo.code && `· ${promo.code}`}
-                    </p>
+                <div key={promo.id} className="bg-[#222] rounded-xl p-4 border border-[#333]">
+                  <div className="flex justify-between items-center">
+                    <div className="flex-1">
+                      <h3 className="text-white font-semibold">{promo.title}</h3>
+                      <p className="text-gray-400 text-xs mt-1">
+                        {promo.tier_required} {promo.discount_pct && `· ${promo.discount_pct}% OFF`} {promo.code && `· ${promo.code}`}
+                      </p>
+                    </div>
+                    <div className="flex gap-2">
+                      <button onClick={() => editPromo(promo)}
+                        className="text-xs text-gray-400 hover:text-white px-2 py-1">
+                        Editar
+                      </button>
+                      <button onClick={() => togglePromo(promo.id, promo.is_active)}
+                        className={`text-xs px-3 py-1 rounded-full font-semibold ${promo.is_active ? 'bg-green-900 text-green-300' : 'bg-red-900 text-red-300'}`}>
+                        {promo.is_active ? 'Activa' : 'Inactiva'}
+                      </button>
+                    </div>
                   </div>
-                  <button onClick={() => togglePromo(promo.id, promo.is_active)}
-                    className={`text-xs px-3 py-1 rounded-full font-semibold ${promo.is_active ? 'bg-green-900 text-green-300' : 'bg-red-900 text-red-300'}`}>
-                    {promo.is_active ? 'Activa' : 'Inactiva'}
-                  </button>
                 </div>
               ))}
             </div>

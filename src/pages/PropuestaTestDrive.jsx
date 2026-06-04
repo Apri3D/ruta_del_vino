@@ -1,5 +1,6 @@
 import React from 'react';
 import { useLocation } from 'react-router-dom'
+import ChargingStatus from '../components/ChargingStatus'
 
 export default function PropuestaTestDrive() {
   const { state } = useLocation()
@@ -8,10 +9,13 @@ export default function PropuestaTestDrive() {
     <div className="flex justify-center items-center min-h-screen bg-[#111111] p-4">
       <div className="w-full max-w-md bg-[#222222] rounded-2xl p-8 shadow-2xl border border-[#333333]">
         
-        {/* Estado del Cargador */}
         <div className="flex items-center gap-2 bg-[#2d2d2d] text-gray-400 px-4 py-1.5 rounded-full text-xs font-medium w-fit mb-6 border border-[#3d3d3d]">
           <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></span>
           Abasteciendo vehículo vía Red Solar
+        </div>
+
+        <div className="relative flex justify-center mb-6">
+          <ChargingStatus />
         </div>
 
         <h1 className="text-white text-xl font-bold mb-2 uppercase tracking-wide">

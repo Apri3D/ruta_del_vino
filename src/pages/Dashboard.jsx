@@ -9,9 +9,11 @@ export default function Dashboard() {
   const [redemptions, setRedemptions] = useState([])
 
   useEffect(() => {
+    const today = new Date().toISOString()
     supabase.from('promos').select('*').eq('is_active', true).then(({ data }) => {
       if (data) setPromos(data.filter(p =>
-        p.tier_required === 'regular' || p.tier_required === profile?.tier
+        (p.tier_required === 'regular' || p.tier_required === profile?.tier) &&
+        (!p.valid_until || p.valid_until >= today)
       ))
     })
     if (user) {
@@ -27,8 +29,17 @@ export default function Dashboard() {
 
   async function redeemCharge() {
     if (!profile || profile.free_charges_remaining <= 0) return
+    let location = 'Nodo Bodega Orgánica'
+    if (navigator.geolocation) {
+      try {
+        const pos = await new Promise((resolve, reject) =>
+          navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 5000 })
+        )
+        location = `${pos.coords.latitude},${pos.coords.longitude}`
+      } catch {}
+    }
     const { error } = await supabase.from('redemptions').insert({
-      user_id: user.id, type: 'charge', location: 'Nodo Bodega Orgánica'
+      user_id: user.id, type: 'charge', location
     })
     if (!error) {
       await supabase.rpc('decrement_charges', { user_id: user.id })
