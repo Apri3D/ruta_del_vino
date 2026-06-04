@@ -40,7 +40,7 @@ export default function VipAntelo() {
 
         {/* Botón de acción para el restaurante via WhatsApp */}
         <a
-          href="https://wa.me/TU_NUMERO_WHATSAPP_BODEGA?text=Hola!%20Soy%20cliente%20VIP%20de%20Antelo%20y%20acabo%20de%20conectar%20mi%20veh%C3%ADculo.%20Quisiera%20confirmar%20mi%20lugar%20en%20el%20restaurante."
+          href="https://wa.me/541134610095?text=Hola!%20Soy%20cliente%20VIP%20de%20Antelo%20y%20acabo%20de%20conectar%20mi%20veh%C3%ADculo.%20Quisiera%20confirmar%20mi%20lugar%20en%20el%20restaurante."
           target="_blank"
           rel="noopener noreferrer"
           className="block w-full bg-[#D4AF37] hover:bg-[#b8942e] transition-colors duration-200 text-[#111111] font-bold py-3 rounded-lg uppercase text-sm tracking-wider shadow-lg"
