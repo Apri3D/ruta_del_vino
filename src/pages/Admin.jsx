@@ -1,21 +1,35 @@
 import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { useAuth } from '../context/AuthContext'
 import { supabase } from '../lib/supabase'
 
 export default function Admin() {
+  const { user, profile, loading } = useAuth()
+  const navigate = useNavigate()
   const [leads, setLeads] = useState([])
   const [promos, setPromos] = useState([])
+  const [users, setUsers] = useState([])
   const [tab, setTab] = useState('leads')
   const [showForm, setShowForm] = useState(false)
   const [form, setForm] = useState({ title: '', description: '', discount_pct: '', code: '', tier_required: 'regular', valid_until: '' })
 
   useEffect(() => {
+    if (loading) return
+    if (!user || !profile?.is_admin) navigate('/', { replace: true })
+  }, [user, profile, loading, navigate])
+
+  useEffect(() => {
+    if (!profile?.is_admin) return
     supabase.from('leads_mendoza').select('*').order('created_at', { ascending: false }).limit(100).then(({ data }) => {
       if (data) setLeads(data)
     })
     supabase.from('promos').select('*').order('created_at', { ascending: false }).then(({ data }) => {
       if (data) setPromos(data)
     })
-  }, [])
+    supabase.from('profiles').select('*').order('created_at', { ascending: false }).then(({ data }) => {
+      if (data) setUsers(data)
+    })
+  }, [profile])
 
   async function createPromo(e) {
     e.preventDefault()
@@ -42,12 +56,20 @@ export default function Admin() {
     })
   }
 
+  async function updateUser(userId, updates) {
+    await supabase.from('profiles').update(updates).eq('id', userId)
+    supabase.from('profiles').select('*').order('created_at', { ascending: false }).then(({ data }) => {
+      if (data) setUsers(data)
+    })
+  }
+
+  if (loading || !profile?.is_admin) return null
+
   return (
     <div className="min-h-screen bg-[#111111] p-4">
-      <div className="max-w-4xl mx-auto">
+      <div className="max-w-5xl mx-auto">
         <h1 className="text-white text-xl font-bold mb-4 uppercase tracking-wide">Panel Admin</h1>
 
-        {/* Tabs */}
         <div className="flex gap-4 mb-6 border-b border-[#333] pb-2">
           <button onClick={() => setTab('leads')}
             className={`text-sm font-semibold pb-1 ${tab === 'leads' ? 'text-[#D4AF37] border-b-2 border-[#D4AF37]' : 'text-gray-500'}`}>
@@ -57,9 +79,12 @@ export default function Admin() {
             className={`text-sm font-semibold pb-1 ${tab === 'promos' ? 'text-[#D4AF37] border-b-2 border-[#D4AF37]' : 'text-gray-500'}`}>
             Promociones
           </button>
+          <button onClick={() => setTab('usuarios')}
+            className={`text-sm font-semibold pb-1 ${tab === 'usuarios' ? 'text-[#D4AF37] border-b-2 border-[#D4AF37]' : 'text-gray-500'}`}>
+            Usuarios
+          </button>
         </div>
 
-        {/* Leads Tab */}
         {tab === 'leads' && (
           <div className="overflow-x-auto">
             <table className="w-full text-sm text-gray-300">
@@ -93,7 +118,6 @@ export default function Admin() {
           </div>
         )}
 
-        {/* Promos Tab */}
         {tab === 'promos' && (
           <div>
             <button onClick={() => setShowForm(!showForm)}
@@ -150,6 +174,50 @@ export default function Admin() {
                 </div>
               ))}
             </div>
+          </div>
+        )}
+
+        {tab === 'usuarios' && (
+          <div className="space-y-3">
+            {users.map(u => (
+              <div key={u.id} className="bg-[#222] rounded-xl p-4 border border-[#333]">
+                <div className="flex justify-between items-start">
+                  <div>
+                    <h3 className="text-white font-semibold">{u.name || 'Sin nombre'}</h3>
+                    <p className="text-gray-400 text-xs">{u.phone || 'Sin teléfono'}</p>
+                  </div>
+                  <span className={`text-xs font-semibold ${u.is_admin ? 'text-[#D4AF37]' : 'text-gray-500'}`}>
+                    {u.is_admin ? 'Admin' : 'Usuario'}
+                  </span>
+                </div>
+                <div className="flex gap-3 mt-3">
+                  <div className="flex-1">
+                    <label className="text-xs text-gray-500">Cargas restantes</label>
+                    <div className="flex gap-2 mt-1">
+                      <input type="number" value={u.free_charges_remaining || 0}
+                        onChange={e => updateUser(u.id, { free_charges_remaining: parseInt(e.target.value) || 0 })}
+                        className="w-20 bg-[#2d2d2d] border border-[#3d3d3d] rounded-lg px-3 py-1.5 text-white text-sm" />
+                    </div>
+                  </div>
+                  <div className="flex-1">
+                    <label className="text-xs text-gray-500">Membresía</label>
+                    <select value={u.tier}
+                      onChange={e => updateUser(u.id, { tier: e.target.value })}
+                      className="w-full mt-1 bg-[#2d2d2d] border border-[#3d3d3d] rounded-lg px-3 py-1.5 text-white text-sm">
+                      <option value="regular">Regular</option>
+                      <option value="test_drive">Test Drive</option>
+                      <option value="vip">VIP</option>
+                    </select>
+                  </div>
+                  <div className="flex-1">
+                    <label className="text-xs text-gray-500">Puntos fidelidad</label>
+                    <input type="number" value={u.fidelity_points || 0}
+                      onChange={e => updateUser(u.id, { fidelity_points: parseInt(e.target.value) || 0 })}
+                      className="w-full mt-1 bg-[#2d2d2d] border border-[#3d3d3d] rounded-lg px-3 py-1.5 text-white text-sm" />
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
         )}
       </div>

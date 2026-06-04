@@ -8,6 +8,7 @@ create table if not exists public.profiles (
   tier text check (tier in ('vip', 'test_drive', 'regular')) default 'regular',
   free_charges_remaining int default 0,
   fidelity_points int default 0,
+  is_admin boolean default false,
   created_at timestamptz default now(),
   updated_at timestamptz default now()
 );
@@ -19,6 +20,16 @@ create policy "Users can read own profile"
 
 create policy "Users can update own profile"
   on public.profiles for update using (auth.uid() = id);
+
+create policy "Admins can read all profiles"
+  on public.profiles for select using (
+    auth.uid() in (select id from public.profiles where is_admin = true)
+  );
+
+create policy "Admins can update all profiles"
+  on public.profiles for update using (
+    auth.uid() in (select id from public.profiles where is_admin = true)
+  );
 
 -- 2. PROMOS table
 create table if not exists public.promos (
@@ -38,6 +49,11 @@ alter table public.promos enable row level security;
 
 create policy "Anyone can read active promos"
   on public.promos for select using (is_active = true);
+
+create policy "Admins can manage promos"
+  on public.promos for all using (
+    auth.uid() in (select id from public.profiles where is_admin = true)
+  );
 
 -- 3. REDEMPTIONS table
 create table if not exists public.redemptions (

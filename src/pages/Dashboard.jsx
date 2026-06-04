@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { supabase } from '../lib/supabase'
 
@@ -48,10 +49,18 @@ export default function Dashboard() {
                 {tierLabel[profile?.tier] || tierLabel.regular}
               </p>
             </div>
-            <button onClick={signOut}
-              className="text-xs text-gray-500 hover:text-gray-300 transition-colors">
-              Cerrar sesión
-            </button>
+            <div className="flex gap-2">
+              {profile?.is_admin && (
+                <Link to="/admin"
+                  className="text-xs text-[#D4AF37] hover:text-[#b8942e] transition-colors">
+                  Admin
+                </Link>
+              )}
+              <button onClick={signOut}
+                className="text-xs text-gray-500 hover:text-gray-300 transition-colors">
+                Cerrar sesión
+              </button>
+            </div>
           </div>
         </div>
 
