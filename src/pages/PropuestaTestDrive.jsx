@@ -1,6 +1,9 @@
 import React from 'react';
+import { useLocation } from 'react-router-dom'
 
 export default function PropuestaTestDrive() {
+  const { state } = useLocation()
+  const nombre = state?.nombre || 'Usuario'
   return (
     <div className="flex justify-center items-center min-h-screen bg-[#111111] p-4">
       <div className="w-full max-w-md bg-[#222222] rounded-2xl p-8 shadow-2xl border border-[#333333]">

@@ -1,6 +1,10 @@
 import React from 'react';
+import { useLocation } from 'react-router-dom'
 
 export default function VipAntelo() {
+  const { state } = useLocation()
+  const nombre = state?.nombre || 'Propietario'
+
   return (
     <div className="flex justify-center items-center min-h-screen bg-[#111111] p-4">
       <div className="w-full max-w-md bg-[#222222] rounded-2xl p-8 shadow-2xl border border-[#333333] text-center">
@@ -13,7 +17,6 @@ export default function VipAntelo() {
 
         {/* Tarjeta de Membresía VIP */}
         <div className="bg-gradient-to-br from-[#4A0E17] to-[#2d090e] rounded-xl p-6 border border-[#D4AF37]/30 shadow-xl text-left mb-6 relative overflow-hidden">
-          {/* Efecto de brillo de tarjeta premium */}
           <div className="absolute -right-10 -top-10 w-32 h-32 bg-white/5 rounded-full blur-2xl"></div>
           
           <h2 className="text-[#D4AF37] font-bold tracking-widest text-xs uppercase mb-1">Comunidad Antelo</h2>
@@ -32,13 +35,12 @@ export default function VipAntelo() {
         </div>
 
         <h1 className="text-white text-lg font-bold mb-2 uppercase tracking-wide">
-          ¡Bienvenido, Propietario!
+          ¡Bienvenido, {nombre}!
         </h1>
         <p className="text-sm text-gray-400 mb-6 leading-relaxed">
           Tu vehículo ya se está abasteciendo con energía limpia generada por los paneles solares de la finca. Presentá esta pantalla en la recepción de la bodega para activar tus beneficios exclusivos de hospitalidad.
         </p>
 
-        {/* Botón de acción para el restaurante via WhatsApp */}
         <a
           href="https://wa.me/541134610095?text=Hola!%20Soy%20cliente%20VIP%20de%20Antelo%20y%20acabo%20de%20conectar%20mi%20veh%C3%ADculo.%20Quisiera%20confirmar%20mi%20lugar%20en%20el%20restaurante."
           target="_blank"

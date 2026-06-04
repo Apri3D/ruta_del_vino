@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase';
 
 export default function FormularioCarga() {
+  const navigate = useNavigate()
   const [formData, setFormData] = useState({
     nombre: '',
     email: '',
@@ -26,11 +28,9 @@ export default function FormularioCarga() {
       // Evaluamos la categoría que devolvió la base de datos para redirigir
       const leadRegistrado = data[0];
       if (leadRegistrado.categoria === 'VIP ANTELO') {
-        // Redirección o cambio de estado a Pantalla VIP
-        window.location.href = '/vip-antelo';
+        navigate('/vip-antelo', { state: { nombre: formData.nombre } });
       } else {
-        // Redirección o cambio de estado a Pantalla Conquista / Test Drive
-        window.location.href = '/propuesta-testdrive';
+        navigate('/propuesta-testdrive', { state: { nombre: formData.nombre } });
       }
 
     } catch (error) {
